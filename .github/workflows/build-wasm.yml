@@ -69,11 +69,21 @@ jobs:
           path: build-wasm_files_to_copy
           retention-days: 5
 
-      - name: Release - ZIP wasm files
-        if: startsWith(github.ref, 'refs/tags/')
+      - name: Nightly - Prepare release files
         run: |
+          cp build-wasm_files_to_copy/wasm/venus-gui-v2.wasm.sha256 .
           cd build-wasm_files_to_copy
           zip -r ../venus-webassembly.zip wasm
+
+      - name: Nightly - Publish pre-release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: nightly
+          name: Nightly Build
+          prerelease: true
+          files: |
+            venus-webassembly.zip
+            venus-gui-v2.wasm.sha256
 
       - name: Release - Create release with wasm files
         uses: softprops/action-gh-release@v1
