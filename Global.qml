@@ -108,6 +108,7 @@ QtObject {
 	}
 
 
+/*
 	readonly property VeQuickItem _guiPlugins: VeQuickItem {
 		// Only listen to the gui plugins MQTT path in WASM.
 		// GX and Desktop builds read gui plugins from filesystem instead.
@@ -127,5 +128,5 @@ QtObject {
 			}
 		}
 	}
-
+*/
 }
