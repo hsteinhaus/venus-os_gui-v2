@@ -32,9 +32,17 @@ OverviewWidget {
 			? VenusOS.OverviewWidget_PreferredSize_PreferLarge
 			: VenusOS.OverviewWidget_PreferredSize_Any
 
+	// Some PV inverter drivers (e.g. custom energy meter drivers) also provide a daily yield history.
+	readonly property VeQuickItem _pvInverterDaysAvailable: VeQuickItem {
+		uid: Global.solarInputs.pvInverterDevices.count === 1
+			? Global.solarInputs.pvInverterDevices.firstObject.serviceUid + "/History/Overall/DaysAvailable"
+			: ""
+	}
+	readonly property bool _pvInverterHasHistory: _pvInverterDaysAvailable.valid && _pvInverterDaysAvailable.value > 0
+
 	// Solar yield history is only available for PV chargers, and phase data is only available for
 	// PV inverters. So, if there are only solar chargers, show the solar history; otherwise if
-	// there is a single PV inverter, show its phase data.
+	// there is a single PV inverter, show its history if available, else its phase data.
 	extraContentChildren: [
 		Loader {
 			id: extraContentLoader
@@ -50,7 +58,7 @@ OverviewWidget {
 			active: root.size >= VenusOS.OverviewWidget_Size_L
 			sourceComponent: {
 				if (Global.solarInputs.pvInverterDevices.count === 1 && Global.solarInputs.devices.count === 0) {
-					return phaseComponent
+					return root._pvInverterHasHistory ? historyComponent : phaseComponent
 				} else if (Global.solarInputs.pvInverterDevices.count === 0) {
 					return historyComponent
 				}

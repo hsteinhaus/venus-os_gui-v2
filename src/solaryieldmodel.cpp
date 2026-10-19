@@ -363,6 +363,9 @@ bool SolarYieldModel::deviceMayHaveSolarHistory(Device *device) const
 			QStringLiteral("solarcharger"),
 			QStringLiteral("multi"),
 			QStringLiteral("inverter"),
+			// PV inverters normally have no history; drivers that provide
+			// /History/Overall/DaysAvailable are included, all others contribute nothing.
+			QStringLiteral("pvinverter"),
 		};
 		return serviceTypes.indexOf(device->serviceType()) >= 0;
 	}

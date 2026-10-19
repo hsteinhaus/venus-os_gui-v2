@@ -105,6 +105,20 @@ Page {
 			}
 
 			ListNavigation {
+				text: CommonWords.history
+				preferredVisible: daysAvailable.valid && daysAvailable.value > 0
+				onClicked: {
+					Global.pageManager.pushPage("/pages/solar/SolarHistoryPage.qml",
+							{ "serviceUid": pvInverter.serviceUid })
+				}
+
+				VeQuickItem {
+					id: daysAvailable
+					uid: pvInverter.serviceUid + "/History/Overall/DaysAvailable"
+				}
+			}
+
+			ListNavigation {
 				text: CommonWords.product_page
 				onClicked: {
 					Global.pageManager.pushPage("/pages/settings/devicelist/ac-in/PageAcIn.qml",

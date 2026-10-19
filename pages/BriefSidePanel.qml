@@ -12,6 +12,13 @@ ColumnLayout {
 
 	property bool animationEnabled
 
+	readonly property VeQuickItem _pvInverterDaysAvailable: VeQuickItem {
+		uid: Global.solarInputs.pvInverterDevices.count === 1
+			? Global.solarInputs.pvInverterDevices.firstObject.serviceUid + "/History/Overall/DaysAvailable"
+			: ""
+	}
+	readonly property bool pvInverterHasHistory: _pvInverterDaysAvailable.valid && _pvInverterDaysAvailable.value > 0
+
 	readonly property AcInput generatorInput: Global.acInputs.input1?.source === VenusOS.AcInputs_InputSource_Generator ? Global.acInputs.input1
 			: Global.acInputs.input2?.source === VenusOS.AcInputs_InputSource_Generator ? Global.acInputs.input2
 			: null
@@ -23,8 +30,9 @@ ColumnLayout {
 		//% "Solar yield"
 		title: qsTrId("brief_solar_yield")
 		icon.source: "qrc:/images/solaryield.svg"
-		loadersActive: Global.solarInputs.devices.count > 0 // pvinverters do not have history, so ignore them
-		visible: Global.solarInputs.devices.count > 0
+		// pvinverters usually do not have history, so ignore them unless a single one provides it
+		loadersActive: Global.solarInputs.devices.count > 0 || root.pvInverterHasHistory
+		visible: loadersActive
 		quantityLabel.dataObject: Global.system.solar
 		sideComponent: SolarYieldGraph {
 			spacing: Theme.geometry_sidePanel_solar_graph_bar_spacing
