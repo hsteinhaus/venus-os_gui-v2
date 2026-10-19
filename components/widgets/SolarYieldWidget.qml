@@ -10,9 +10,18 @@ import Victron.VenusOS
 OverviewWidget {
 	id: root
 
-	readonly property bool _showPhases: Global.solarInputs.pvInverterDevices.count === 1
+	// Some PV inverter drivers (e.g. custom energy meter drivers) also provide a daily yield history.
+	readonly property VeQuickItem _pvInverterDaysAvailable: VeQuickItem {
+		uid: Global.solarInputs.pvInverterDevices.count === 1
+			? Global.solarInputs.pvInverterDevices.firstObject.serviceUid + "/History/Overall/DaysAvailable"
+			: ""
+	}
+	readonly property bool _singlePvInverterOnly: Global.solarInputs.pvInverterDevices.count === 1
 			&& Global.solarInputs.devices.count === 0
-	readonly property bool _canShowGraph: Global.solarInputs.pvInverterDevices.count === 0
+	readonly property bool _pvInverterHasHistory: _singlePvInverterOnly
+			&& _pvInverterDaysAvailable.valid && _pvInverterDaysAvailable.value > 0
+	readonly property bool _showPhases: _singlePvInverterOnly && !_pvInverterHasHistory
+	readonly property bool _canShowGraph: Global.solarInputs.pvInverterDevices.count === 0 || _pvInverterHasHistory
 	readonly property bool _showGraph: _canShowGraph && root.size >= VenusOS.OverviewWidget_Size_M
 
 	onClicked: {
@@ -38,9 +47,9 @@ OverviewWidget {
 			? Theme.geometry_overviewPage_widget_content_bottomMargin_large
 			: Theme.geometry_overviewPage_widget_content_bottomMargin_small
 
-	// Solar yield history is only available for PV chargers, and phase data is only available for
-	// PV inverters. So, if there are only solar chargers, show the solar history; otherwise if
-	// there is a single PV inverter, show its phase data.
+	// Solar yield history is usually only available for PV chargers, and phase data is only available
+	// for PV inverters. So, if there are only solar chargers, show the solar history; otherwise if
+	// there is a single PV inverter, show its history if it provides one, else its phase data.
 	contentItem: ColumnLayout {
 		spacing: Theme.geometry_overviewPage_widget_content_spacing
 

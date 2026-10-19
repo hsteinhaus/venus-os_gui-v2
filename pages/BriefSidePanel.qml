@@ -12,6 +12,14 @@ ColumnLayout {
 
 	required property bool animationEnabled
 
+	// Some PV inverter drivers (e.g. custom energy meter drivers) also provide a daily yield history.
+	readonly property VeQuickItem _pvInverterDaysAvailable: VeQuickItem {
+		uid: Global.solarInputs.pvInverterDevices.count === 1
+			? Global.solarInputs.pvInverterDevices.firstObject.serviceUid + "/History/Overall/DaysAvailable"
+			: ""
+	}
+	readonly property bool pvInverterHasHistory: _pvInverterDaysAvailable.valid && _pvInverterDaysAvailable.value > 0
+
 	readonly property AcInput generatorInput: Global.acInputs.input1?.source === VenusOS.AcInputs_InputSource_Generator ? Global.acInputs.input1
 			: Global.acInputs.input2?.source === VenusOS.AcInputs_InputSource_Generator ? Global.acInputs.input2
 			: null
@@ -24,7 +32,8 @@ ColumnLayout {
 	BriefSidePanelWidget {
 		title: CommonWords.solar
 		icon.source: "qrc:/images/solaryield.svg"
-		loadersActive: Global.solarInputs.devices.count > 0 // only show graph if there are solar inputs with history (i.e. not PV inverters)
+		// only show graph if there are solar inputs with history (PV chargers, or a single PV inverter that provides one)
+		loadersActive: Global.solarInputs.devices.count > 0 || root.pvInverterHasHistory
 		visible: Global.solarInputs.inputCount > 0 // show if there are any solar inputs (PV chargers, PV inverters, etc.)
 		quantityLabel.dataObject: Global.system.solar
 		graph: SolarYieldGraph {}
